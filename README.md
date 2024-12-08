@@ -1,2 +1,3 @@
-# collab
-Collabortive Software
+# Websocket
+
+Web socket example in Golang
