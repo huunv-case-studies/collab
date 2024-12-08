@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        .hide {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login">
+        <input type="text" id="name" placeholder="Enter your name">
+        <button onclick="join()"> Join chat</button>
+    </div>    
+    <div id="chat" class="hide">
+        <p>Status:</p>
+        <div id="statuses"></div>
+        <p>Messages:</p>
+        <div id="messages"></div>
+        <div id="form">
+            <input id="inp" type="text" placeholder="New message">
+            <button onclick="submitForm()"> Send </button>
+        </div>
+    </div>
+
+    <script>
+        var ws = null
+        var messContainer = document.getElementById('messages')
+        var statusContainer = document.getElementById('statuses')
+        var messInp = document.getElementById('inp')
+        var nameInp = document.getElementById('name')
+
+        function join() {
+            var name = nameInp.value
+            if (!name) {
+                alert("Enter your name")
+                return
+            }
+
+            document.getElementById('login').classList.add('hide')
+            document.getElementById('chat').classList.remove('hide')
+
+            ws = new WebSocket(`ws://${window.location.host}/ws?name=${name}`)
+            ws.onopen = () => statusContainer.append('<pre> Connected \n</pre>')
+            ws.onclose = () => statusContainer.append('<pre> Connection closed \n</pre>')
+            ws.onmessage = async (evt) => {
+                var msg = await evt.data.text()
+                messContainer.append(`<pre> ${msg} \n</pre>`)
+            }
+        }
+
+        function submitForm() {
+            if (messInp.value.length) {
+                ws.send(messInp.value)
+            }
+        }
+    </script>
+</body>
+</html>

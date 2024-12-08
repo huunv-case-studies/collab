@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Output</title>
+</head>
+<body>
+    <div id="output" style="padding: 16px;">
+    </div>
+
+    <div style="margin-top: 20px">
+        <input id="inp" type="text" name="inp">
+        <button onclick="submitForm()">Send</button>
+    </div>
+
+    <script>
+        var outputElm = document.getElementById('output')
+        var inp = document.getElementById('inp')
+        var ws = new WebSocket(`ws://${window.location.host}/ws`)
+
+        function setOutput(content) {
+            var elm = document.createElement('p')
+            elm.innerHTML = `<pre>${content}</pre>`
+            outputElm.append(elm)
+        }
+
+        function submitForm() {
+            if (inp.value) {
+                ws.send(inp.value)
+                inp.value = ''
+            }
+        }
+
+        ws.onopen = () => setOutput("Connected \n")
+        ws.onclose = () => setOutput("Connection closed. \n")
+        ws.onmessage = async (evt) => {
+            if (evt.data) {
+                var mssg = await evt.data.text()
+                setOutput(mssg)
+            }
+        }
+    </script>
+</body>
+</html>
